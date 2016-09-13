@@ -1,0 +1,44 @@
+{
+  "name": "shop-bill",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "test": "ava --verbose",
+    "lint": "eslint ."
+  },
+  "keywords": [],
+  "author": "Andrei Railean <andrei@siter.com.au> (http://www.siter.com.au/)",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "ava": "0.16.0",
+    "babel-register": "6.14.0",
+    "chai": "3.5.0",
+    "eslint": "3.5.0",
+    "eslint-config-standard": "6.0.0",
+    "eslint-plugin-ava": "3.0.0",
+    "eslint-plugin-promise": "2.0.1",
+    "eslint-plugin-standard": "2.0.0",
+    "mocha": "3.0.2"
+  },
+  "dependencies": {
+    "lodash": "4.15.0"
+  },
+  "ava": {
+    "files": [
+      "**/*.spec.js"
+    ],
+    "source": [
+      "**/*.{js,jsx}"
+    ],
+    "concurrency": 5,
+    "failFast": true,
+    "tap": true,
+    "powerAssert": false,
+    "require": [
+      "babel-register"
+    ],
+    "babel": "inherit"
+  }
+}
