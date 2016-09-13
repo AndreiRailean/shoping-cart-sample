@@ -3,12 +3,12 @@
 import User from './User'
 
 export default class Cart {
-  constructor ({user}={}) {
+  constructor ({user} = {}) {
     this._user = user || new User()
     this._products = []
   }
 
-  add (product, quantity=1) {
+  add (product, quantity = 1) {
     if (product) {
       this._products.push({
         product,

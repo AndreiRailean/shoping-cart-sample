@@ -4,10 +4,10 @@ import {yearsAgoDate} from './lib'
 
 export default class User {
   constructor ({
-    isEmployee=false,
-    isAffiliate=false,
+    isEmployee = false,
+    isAffiliate = false,
     firstPurchaseDate
-  }={}) {
+  } = {}) {
     this._isEmployee = !!isEmployee
     this._isAffiliate = !!isAffiliate
     this._firstPurchaseDate = firstPurchaseDate || new Date()
@@ -39,7 +39,7 @@ export default class User {
 
   get isLoyal () {
     const twoYearsAgo = yearsAgoDate(this.loyaltyTerm)
-    return this._firstPurchaseDate <= twoYearsAgo
+    return this._firstPurchaseDate < twoYearsAgo
   }
 
   get loyaltyTerm () {

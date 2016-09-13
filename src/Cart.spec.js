@@ -7,109 +7,185 @@ import Cart from './Cart'
 
 import { yearsAgoDate } from './lib'
 
-let bread = { name: 'Bread', isGrocery: true, price: 5.00 }
-let milk = { name: 'Milk', isGrocery: true, price: 2.50 }
-let apples = { name: 'Apples', isGrocery: true, price: 4.00 }
-let socks = { name: 'Socks', price: 10.00 }
-let tv = { name: 'TV', price: 990.00 }
+const employee = new User({isEmployee: true})
+const affiliate = new User({isAffiliate: true})
+const loyalCustomer = new User({firstPurchaseDate: yearsAgoDate(3)})
 
 test('No Discount on Grocery bill under $100', (t) => {
-  let cart = new Cart()
-  cart.add(bread, 2)
-  cart.add(milk, 4)
+  const cart = new Cart()
+
+  const bread = {
+    name: 'Bread',
+    isGrocery: true,
+    price: 5.00
+  }
+  const apples = {
+    name: 'Apples',
+    isGrocery: true,
+    price: 4.00
+  }
+
+  cart.add(bread, 4)
   cart.add(apples, 2.5)
 
-  t.is(cart.subtotal, 30)
+  const total = 30
 
-  let employee = new User()
+  t.is(cart.subtotal, total)
+  t.is(cart.total, total)
+
   cart.user = employee
-  t.is(cart.total, 30)
+  t.is(cart.total, total)
+
+  cart.user = affiliate
+  t.is(cart.total, total)
+
+  cart.user = loyalCustomer
+  t.is(cart.total, total)
 })
 
 test('$5 Discount on $105 Grocery bill', (t) => {
-  let cart = new Cart()
-  let product = {
+  const cart = new Cart()
+  const product = {
     name: 'Food',
     isGrocery: true,
     price: 110
   }
   cart.add(product)
 
-  let expectedDiscount = 5
+  const discount = 5
+  const total = product.price - discount
 
   t.is(cart.subtotal, product.price)
-  t.is(cart.discount, expectedDiscount)
-  t.is(cart.total, product.price - expectedDiscount)
+  t.is(cart.discount, discount)
+  t.is(cart.total, total)
 })
 
 test('$45 discount on $990 purchase (no grocery)', (t) => {
-  let cart = new Cart()
-  cart.add(tv, 1)
+  const cart = new Cart()
+  const product = {
+    name: 'Not Food',
+    price: 990
+  }
+  cart.add(product, 1)
 
-  t.is(cart.subtotal, 990)
+  const discount = 45
+  const total = product.price - discount
+
+  t.is(cart.subtotal, product.price)
+  t.is(cart.discount, discount)
+  t.is(cart.total, total)
+})
+
+test('Employee gets 30% discount and volume discount', (t) => {
+  const cart = new Cart({ user: employee })
+  const product = {
+    name: 'Not Food',
+    price: 1000.00
+  }
+
+  cart.add(product)
+
+  const userDiscount = 300
+  const volumeDiscount = 50
+
+  const discount = userDiscount + volumeDiscount
+  const total = product.price - discount
+
+  t.is(cart.subtotal, product.price)
+  t.is(cart.discount, discount)
+  t.is(cart.total, total)
+})
+
+test('Affiliate gets 10% discount and volume discount', (t) => {
+  const cart = new Cart({ user: affiliate })
+  const product = {
+    name: 'Not Food',
+    price: 1000.00
+  }
+  cart.add(product)
+
+  const userDiscount = 100
+  const volumeDiscount = 50
+
+  const discount = userDiscount + volumeDiscount
+  const total = product.price - discount
+
+  t.is(cart.subtotal, product.price)
+  t.is(cart.discount, discount)
+  t.is(cart.total, total)
+})
+
+test('Customer for 2 years gets 5% discount and volume discount', (t) => {
+  const cart = new Cart({user: loyalCustomer})
+  const product = {
+    name: 'Not Food',
+    price: 1000.00
+  }
+  cart.add(product)
+
+  const userDiscount = 50
+  const volumeDiscount = 50
+
+  const discount = userDiscount + volumeDiscount
+  const total = product.price - discount
+
+  t.is(cart.subtotal, product.price)
+  t.is(cart.discount, discount)
+  t.is(cart.total, total)
+})
+
+test('Regular customer only receives volume discount', (t) => {
+  const cart = new Cart()
+  const product = {
+    name: 'Not Food',
+    price: 1000.00
+  }
+  cart.add(product)
+
+  const discount = 50
+  const total = product.price - discount
+
+  t.is(cart.userDiscount, 0)
+  t.is(cart.subtotal, product.price)
+  t.is(cart.discount, discount)
+  t.is(cart.total, total)
+})
+
+test('No percentage discount on groceries', (t) => {
+  const cart = new Cart()
+  const product = {
+    name: 'Not Food',
+    price: 100.00
+  }
+  const food = {
+    name: 'Food',
+    isGrocery: true,
+    price: 100.00
+  }
+  cart.add(product)
+  cart.add(food, 2)
+
+  // regular customer
+  t.is(cart.userDiscount, 0)
+  t.is(cart.volumeDiscount, 15)
+  t.is(cart.discount, 15)
+  t.is(cart.total, 285)
+
+  // employee
+  cart.user = employee
+  t.is(cart.userDiscount, 30)
   t.is(cart.discount, 45)
-  t.is(cart.total, 990-45)
-})
+  t.is(cart.total, 255)
 
-test('Employee gets 30% discount', (t) => {
-  let user = new User({isEmployee: true})
+  // affiliate
+  cart.user = affiliate
+  t.is(cart.userDiscount, 10)
+  t.is(cart.discount, 25)
+  t.is(cart.total, 275)
 
-  let product = {
-    name: 'Not Food',
-    price: 1000.00
-  }
-
-  let cart = new Cart({ user })
-  cart.add(product)
-
-  let expectedUserDiscount = 300
-  let expectedBillDiscount = 50
-  let expectedDiscount = expectedUserDiscount + expectedBillDiscount
-  let expectedTotal = product.price - expectedDiscount
-
-  t.is(cart.subtotal, product.price)
-  t.is(cart.discount, expectedDiscount)
-  t.is(cart.total, expectedTotal)
-})
-
-test('Affiliate gets 10% discount', (t) => {
-  let user = new User({isAffiliate: true})
-
-  let product = {
-    name: 'Not Food',
-    price: 1000.00
-  }
-
-  let cart = new Cart({ user })
-  cart.add(product)
-
-  let expectedUserDiscount = 100
-  let expectedBillDiscount = 50
-  let expectedDiscount = expectedUserDiscount + expectedBillDiscount
-  let expectedTotal = product.price - expectedDiscount
-
-  t.is(cart.subtotal, product.price)
-  t.is(cart.discount, expectedDiscount)
-  t.is(cart.total, expectedTotal)
-})
-
-test('Customer for over 2 years gets 5% discount', (t) => {
-  let user = new User({firstPurchaseDate: yearsAgoDate(3)})
-
-  let product = {
-    name: 'Not Food',
-    price: 1000.00
-  }
-
-  let cart = new Cart({ user })
-  cart.add(product)
-
-  let expectedUserDiscount = 50
-  let expectedBillDiscount = 50
-  let expectedDiscount = expectedUserDiscount + expectedBillDiscount
-  let expectedTotal = product.price - expectedDiscount
-
-  t.is(cart.subtotal, product.price)
-  t.is(cart.discount, expectedDiscount)
-  t.is(cart.total, expectedTotal)
+  // loyal customer
+  cart.user = loyalCustomer
+  t.is(cart.userDiscount, 5)
+  t.is(cart.discount, 20)
+  t.is(cart.total, 280)
 })

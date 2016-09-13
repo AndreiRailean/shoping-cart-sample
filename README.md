@@ -7,6 +7,21 @@
 `nodejs` version `6.5`
 
 ### About the code
+All code is in `./src` directory
+
+Code is written as a library. There's no command-line runnable component that accepts input.
+
+Please see `*.spec.js` files in `./src` to understand usage.
+
+---
+
+## Implementation Assumptions
+Customer's first purchase date is used for "Customer for over 2 years" calculations.
+Customer matching this criteria is called "Loyal Customer" in code
+
+Volume discount ($5 for every $100) is not considered to be a percentage based discount and is applied in addition to percentage based discount.
+
+All individual discounts are calculated based on full price bill subtotal.
 
 ---
 
